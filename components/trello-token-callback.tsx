@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import { LoaderCircle } from "lucide-react";
 
-export function TrelloTokenCallback() {
-  const router = useRouter();
+type TrelloTokenCallbackProps = {
+  onComplete?: () => void;
+};
+
+function redirectHome() {
+  window.location.replace("/");
+}
+
+export function TrelloTokenCallback({ onComplete = redirectHome }: TrelloTokenCallbackProps = {}) {
   const [message, setMessage] = useState("Finishing Trello connection");
 
   useEffect(() => {
@@ -28,13 +34,13 @@ export function TrelloTokenCallback() {
           throw new Error(body.error ?? "Unable to store Trello token.");
         }
         window.history.replaceState(null, "", "/connect/trello/callback");
-        router.replace("/");
-        router.refresh();
+        setMessage("Trello connected. Redirecting...");
+        onComplete();
       })
       .catch((error: unknown) => {
         setMessage(error instanceof Error ? error.message : "Unable to connect Trello.");
       });
-  }, [router]);
+  }, [onComplete]);
 
   return (
     <div className="flex items-center gap-3 text-sm text-steel">
