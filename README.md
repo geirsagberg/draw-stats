@@ -29,6 +29,22 @@ Create a Trello API key from Atlassian/Trello developer settings and set `TRELLO
 
 Users authorize read-only access from `/connect/trello`, which redirects back to `${NEXT_PUBLIC_APP_URL}/connect/trello/callback`.
 
+## Google Login
+
+The sign-in screen supports Supabase Google OAuth. In Google Cloud, create an OAuth client of type Web application. Add these authorized JavaScript origins:
+
+- `http://localhost:3000`
+- `${NEXT_PUBLIC_APP_URL}`
+
+Add the Supabase Google provider callback URL as an authorized redirect URI:
+
+- `https://<project-ref>.supabase.co/auth/v1/callback`
+
+Then enable Google in Supabase Auth > Sign In / Providers and paste the Google client ID and client secret. In Supabase Auth URL Configuration, allow:
+
+- `http://localhost:3000/auth/callback`
+- `${NEXT_PUBLIC_APP_URL}/auth/callback`
+
 ## Vercel Cron
 
 The app includes `GET /api/cron/sync` for polling. Vercel Cron calls it once per day using `vercel.json`, and Vercel sends `CRON_SECRET` as a bearer token in the `Authorization` header. For local testing, call `GET /api/cron/sync?secret=...` with `SYNC_CRON_SECRET`.
