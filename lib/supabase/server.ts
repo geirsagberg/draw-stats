@@ -11,7 +11,7 @@ export async function createSupabaseServerClient() {
   const cookieStore = await cookies();
   const env = getPublicEnv();
 
-  return createServerClient<Database>(env.supabaseUrl, env.supabaseAnonKey, {
+  return createServerClient<Database>(env.supabaseUrl, env.supabasePublishableKey, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -29,7 +29,7 @@ export async function createSupabaseServerClient() {
 
 export function createSupabaseAdminClient() {
   const env = getPublicEnv();
-  return createClient<Database>(env.supabaseUrl, requireServerEnv("SUPABASE_SERVICE_ROLE_KEY"), {
+  return createClient<Database>(env.supabaseUrl, requireServerEnv("SUPABASE_SECRET_KEY"), {
     auth: {
       autoRefreshToken: false,
       persistSession: false
