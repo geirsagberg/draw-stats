@@ -4,6 +4,7 @@ import { AnchorButton, Panel, Shell } from "@/components/ui";
 import { BoardPicker } from "@/components/board-picker";
 import { BurndownChart, type TimelinePoint } from "@/components/burndown-chart";
 import { CardProgressTable, type CardProgressRow } from "@/components/card-progress-table";
+import { LogoutButton } from "@/components/logout-button";
 import { SyncButton } from "@/components/sync-button";
 import { TargetDateForm } from "@/components/target-date-form";
 import type { Database } from "@/lib/supabase/types";
@@ -55,6 +56,7 @@ export function Dashboard({
               Connect Trello
             </AnchorButton>
           )}
+          {demo ? null : <LogoutButton />}
         </div>
       </header>
 

@@ -31,6 +31,7 @@ describe("Dashboard", () => {
 
     expect(screen.getByText("Start with a board connection.")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /connect trello/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /sign out/i })).toBeInTheDocument();
   });
 
   it("renders demo burndown metrics and card progress", () => {
@@ -48,5 +49,6 @@ describe("Dashboard", () => {
     expect(screen.getByText("Demo mode: add Supabase and Trello environment variables to enable live auth and syncing.")).toBeInTheDocument();
     expect(screen.getAllByText("Launch board")).toHaveLength(2);
     expect(screen.getByText("Instrument onboarding funnel")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /sign out/i })).not.toBeInTheDocument();
   });
 });
