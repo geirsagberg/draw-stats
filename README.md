@@ -19,8 +19,8 @@ A hosted Trello card burndown app. It connects to Trello, polls open cards on a 
 6. Run the app:
 
 ```bash
-npm install
-npm run dev
+bun install
+bun run dev
 ```
 
 ## Trello
