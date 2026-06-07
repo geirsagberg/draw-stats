@@ -13,7 +13,8 @@ A hosted Trello card burndown app. It connects to Trello, polls open cards on a 
    - `SUPABASE_SECRET_KEY`: the `sb_secret_...` key.
    - `TRELLO_API_KEY`: the Trello API key.
    - `TRELLO_TOKEN_SECRET`: a 32-byte-or-longer random secret used to encrypt stored Trello tokens.
-   - `SYNC_CRON_SECRET`: a random secret for the cron endpoint.
+   - `CRON_SECRET`: a random secret for Vercel Cron authorization.
+   - `SYNC_CRON_SECRET`: the same value as `CRON_SECRET`, used only for local query-string testing.
 5. In Supabase Auth, enable at least one sign-in provider and make sure the app URL is allowed as a redirect URL.
 6. Run the app:
 
@@ -30,4 +31,24 @@ Users authorize read-only access from `/connect/trello`, which redirects back to
 
 ## Vercel Cron
 
-The app includes `GET /api/cron/sync?secret=...` for polling. Configure a Vercel cron to call it with `SYNC_CRON_SECRET`.
+The app includes `GET /api/cron/sync` for polling. Vercel Cron calls it once per day using `vercel.json`, and Vercel sends `CRON_SECRET` as a bearer token in the `Authorization` header. For local testing, call `GET /api/cron/sync?secret=...` with `SYNC_CRON_SECRET`.
+
+## Deploying to Vercel
+
+Set these environment variables in Vercel:
+
+- `NEXT_PUBLIC_APP_URL`: the production URL, for example `https://draw-stats.vercel.app`.
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SECRET_KEY`
+- `TRELLO_API_KEY`
+- `TRELLO_TOKEN_SECRET`
+- `CRON_SECRET`
+
+Then add the production callback URL in Supabase Auth redirect URLs:
+
+- `${NEXT_PUBLIC_APP_URL}/auth/callback`
+
+Add the production origin to the Trello API key allowed origins:
+
+- `${NEXT_PUBLIC_APP_URL}`

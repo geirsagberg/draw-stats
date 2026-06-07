@@ -4,7 +4,10 @@ import { createSupabaseAdminClient } from "@/lib/supabase/server";
 import { syncBoardForUser } from "@/lib/trello/sync";
 
 export async function GET(request: NextRequest) {
-  if (request.nextUrl.searchParams.get("secret") !== requireServerEnv("SYNC_CRON_SECRET")) {
+  const cronSecret = process.env.CRON_SECRET ?? requireServerEnv("SYNC_CRON_SECRET");
+  const authHeader = request.headers.get("authorization");
+  const querySecret = request.nextUrl.searchParams.get("secret");
+  if (authHeader !== `Bearer ${cronSecret}` && querySecret !== cronSecret) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
