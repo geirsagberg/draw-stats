@@ -126,7 +126,7 @@ export function Dashboard({
             ) : null}
           </div>
         </div>
-        <BurndownChart snapshots={snapshots} />
+        <BurndownChart snapshots={snapshots} targetDate={board.target_date ?? null} />
       </Panel>
 
       <Panel className="mt-6 p-4 sm:p-6">

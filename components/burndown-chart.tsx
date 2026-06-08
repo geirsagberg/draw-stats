@@ -20,11 +20,53 @@ export type TimelinePoint = {
   ideal_remaining?: number | null;
 };
 
-export function BurndownChart({ snapshots }: { snapshots: TimelinePoint[] }) {
-  const data = snapshots.map((snapshot) => ({
+type BurndownChartPoint = Omit<
+  TimelinePoint,
+  "total_check_items" | "completed_check_items" | "remaining_check_items"
+> & {
+  captured_time: number;
+  total_check_items: number | null;
+  completed_check_items: number | null;
+  remaining_check_items: number | null;
+  is_target_date?: boolean;
+};
+
+export function buildBurndownChartData(
+  snapshots: TimelinePoint[],
+  targetDate: string | null
+): BurndownChartPoint[] {
+  const data: BurndownChartPoint[] = snapshots.map((snapshot) => ({
     ...snapshot,
-    label: format(new Date(snapshot.captured_at), "MMM d")
+    captured_time: new Date(snapshot.captured_at).getTime()
   }));
+
+  const latest = data.at(-1);
+  const targetTime = targetDate ? new Date(targetDate).getTime() : NaN;
+
+  if (latest && Number.isFinite(targetTime) && targetTime > latest.captured_time) {
+    data.push({
+      id: "target-date",
+      captured_at: new Date(targetTime).toISOString(),
+      captured_time: targetTime,
+      total_check_items: null,
+      completed_check_items: null,
+      remaining_check_items: null,
+      ideal_remaining: 0,
+      is_target_date: true
+    });
+  }
+
+  return data;
+}
+
+export function BurndownChart({
+  snapshots,
+  targetDate
+}: {
+  snapshots: TimelinePoint[];
+  targetDate: string | null;
+}) {
+  const data = buildBurndownChartData(snapshots, targetDate);
 
   if (data.length === 0) {
     return (
@@ -39,7 +81,16 @@ export function BurndownChart({ snapshots }: { snapshots: TimelinePoint[] }) {
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 18, right: 20, bottom: 6, left: 0 }}>
           <CartesianGrid stroke="#d8d0c2" strokeDasharray="1 8" vertical={false} />
-          <XAxis dataKey="label" tickLine={false} axisLine={false} tick={{ fill: "#51606a", fontSize: 12 }} />
+          <XAxis
+            dataKey="captured_time"
+            type="number"
+            scale="time"
+            domain={["dataMin", "dataMax"]}
+            tickFormatter={(value) => format(new Date(value), "MMM d")}
+            tickLine={false}
+            axisLine={false}
+            tick={{ fill: "#51606a", fontSize: 12 }}
+          />
           <YAxis tickLine={false} axisLine={false} tick={{ fill: "#51606a", fontSize: 12 }} width={38} />
           <Tooltip
             contentStyle={{
@@ -49,8 +100,14 @@ export function BurndownChart({ snapshots }: { snapshots: TimelinePoint[] }) {
               color: "#171717"
             }}
             labelFormatter={(_, payload) => {
-              const capturedAt = payload?.[0]?.payload?.captured_at;
-              return capturedAt ? format(new Date(capturedAt), "PPpp") : "";
+              const point = payload?.[0]?.payload as BurndownChartPoint | undefined;
+              if (!point) {
+                return "";
+              }
+
+              return point.is_target_date
+                ? `Target ${format(new Date(point.captured_time), "PP")}`
+                : format(new Date(point.captured_time), "PPpp");
             }}
           />
           <Line
